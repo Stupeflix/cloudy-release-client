@@ -331,4 +331,13 @@ def copy_system_package(pkg, sys_python='/usr/bin/python',
         run('cp', '-RL', src_dir, dst_dir)
     else:
         # Dealing with a top-level module
-        run('cp', '-RL', pkg_file, venv_site_packages)
+        dest_file = op.join(venv_site_packages, op.split(pkg_file)[1])
+	if op.exists(dest_file):
+            run('mv', dest_file, dest_file + '.backup')
+        try:
+            run('cp', '-RL', pkg_file, venv_site_packages)
+        except Exception:
+            # revert
+	    if op.exists(dest_file + '.backup'):
+                run('mv', dest_file + '.backup', dest_file)
+
